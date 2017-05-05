@@ -25,7 +25,7 @@ object TwinschainAnalyzer extends App with Settings {
         }
         println(persentiles)
       case Failure(e) =>
-        e.printStackTrace()
+//        e.printStackTrace()
     }
 
     Thread.sleep(1000 * 10)
