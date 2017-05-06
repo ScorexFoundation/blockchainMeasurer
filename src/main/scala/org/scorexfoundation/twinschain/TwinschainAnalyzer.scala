@@ -21,11 +21,11 @@ object TwinschainAnalyzer extends App with Settings {
           tails.map(_.count(s => !t.contains(s)))
         }
         val persentiles: Seq[(Int, Int)] = diffs.map { d =>
-          (persentile(0.5, d),persentile(0.9, d))
+          (persentile(0.5, d), persentile(0.9, d))
         }
-        println(persentiles)
+        println(persentiles.map(_._1).mkString(",") + ",|," + persentiles.map(_._2).mkString(","))
       case Failure(e) =>
-//        e.printStackTrace()
+      //        e.printStackTrace()
     }
 
     Thread.sleep(1000 * 10)
