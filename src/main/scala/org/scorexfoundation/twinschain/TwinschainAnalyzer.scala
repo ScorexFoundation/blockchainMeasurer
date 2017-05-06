@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-object TwinschainAnalyzer extends App with Settings {
+object TwinschainAnalyzer extends App with Settings with Calculator {
 
   val LastBlockNum = 50
 
@@ -23,10 +23,10 @@ object TwinschainAnalyzer extends App with Settings {
         val persentiles: Seq[(Int, Int)] = diffs.map { d =>
           (persentile(0.5, d), persentile(0.9, d))
         }
-        println(persentiles.map(_._1).mkString(",") + ",|," + persentiles.map(_._2).mkString(",")+ ",|," +
-          persentile(0.5, persentiles.map(_._1)) + ",|," +  persentile(0.9, persentiles.map(_._2)))
+        println(persentiles.map(_._1).mkString(",") + ",|," + persentiles.map(_._2).mkString(",") + ",|," +
+          persentile(0.5, persentiles.map(_._1)) + ",|," + persentile(0.9, persentiles.map(_._2)))
       case Failure(e) =>
-      //        e.printStackTrace()
+        e.printStackTrace()
     }
 
     Thread.sleep(1000 * 10)
@@ -34,19 +34,4 @@ object TwinschainAnalyzer extends App with Settings {
   }
 
   loop()
-
-  //find minimal i, that $perSent or less of data is less or equal to i
-  def persentile(perSent: Double, data: Seq[Int]): Int = {
-    val length = data.length
-    def loop(i: Int): Int = {
-      val count = data.count(_ <= i)
-      if (count.toDouble / length > perSent) {
-        i
-      } else {
-        loop(i + 1)
-      }
-    }
-    loop(0)
-  }
-
 }
