@@ -23,7 +23,8 @@ object TwinschainAnalyzer extends App with Settings {
         val persentiles: Seq[(Int, Int)] = diffs.map { d =>
           (persentile(0.5, d), persentile(0.9, d))
         }
-        println(persentiles.map(_._1).mkString(",") + ",|," + persentiles.map(_._2).mkString(","))
+        println(persentiles.map(_._1).mkString(",") + ",|," + persentiles.map(_._2).mkString(",")+ ",|," +
+          persentile(0.5, persentiles.map(_._1)) + ",|," +  persentile(0.9, persentiles.map(_._2)))
       case Failure(e) =>
       //        e.printStackTrace()
     }
