@@ -15,4 +15,15 @@ trait Calculator {
     loop(0)
   }
 
+  def analyzeTails(tails: Seq[Seq[String]]): String = {
+    val diffs = tails.map { t =>
+      tails.map(_.count(s => !t.contains(s)))
+    }
+    val persentiles: Seq[(Int, Int)] = diffs.map { d =>
+      (persentile(0.5, d), persentile(0.9, d))
+    }
+    persentiles.map(_._1).mkString(",") + ",|," + persentiles.map(_._2).mkString(",") + ",|," +
+      persentile(0.5, persentiles.map(_._1)) + ",|," + persentile(0.9, persentiles.map(_._2))
+  }
+
 }
