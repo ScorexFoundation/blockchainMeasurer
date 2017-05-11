@@ -15,9 +15,9 @@ object FileParser extends App with Calculator {
     var per90: ArrayBuffer[Int] = ArrayBuffer[Int]()
     var per50: ArrayBuffer[Int] = ArrayBuffer[Int]()
     for (line <- Source.fromFile(filename).getLines()) {
-      val values: Seq[Int] = line.replace(",|,", ",").split(",").map(_.toInt)
-      per90 += values.last
-      per50 += values(values.length - 2)
+      val values: Seq[String] = line.replace(",|,", ",").split(",")
+      per90 += values.last.toInt
+      per50 += values(values.length - 2).toInt
     }
     println(persentile(0.5, per50) + "," + persentile(0.9, per90))
   }

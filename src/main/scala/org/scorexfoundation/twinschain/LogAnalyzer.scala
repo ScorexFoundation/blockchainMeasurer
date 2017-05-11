@@ -17,7 +17,7 @@ object LogAnalyzer extends App with Calculator with Settings {
   }
   val logger = new FileLogger("data/R06_2.stats")
 
-  logDownloader("/home/ubuntu/data/data/tails.data")
+//  logDownloader("/home/ubuntu/data/data/tails.data")
   timeLoop(initialTime)
 
   def timeLoop(time: Long): Unit = {
