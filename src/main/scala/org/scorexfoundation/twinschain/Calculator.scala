@@ -29,18 +29,30 @@ trait Calculator {
     }
     val deltaStep = 1000
 
-    def calcDelta(delta: Long, pc: Double): Long = {
+    def calcDelta(delta: Long, minSuccess: Long, maxFailure: Long, pc: Double): Long = {
+      assert(delta > maxFailure && delta < minSuccess && delta >= 0)
       val lastBlockDeltaBack: Seq[String] = tailsWithTimes.map(t => t.filter(_._1 <= (nodeTime - delta)).last._2)
       //per cent of nodes that agrees on block delta milliseconds ago
       val percents: Seq[Double] = lastBlockDeltaBack.map(lb => tails.count(_.contains(lb)).toDouble / tails.length)
       if (percents.count(_ >= pc).toDouble / percents.length >= pc) {
-        println(s"found $delta for $pc")
-        delta
+//                println(s"found $delta for $pc")
+        if (minSuccess - delta > deltaStep && delta > 0) {
+          calcDelta((maxFailure + delta) / 2, delta, maxFailure, pc)
+        } else {
+          delta
+        }
       } else {
-        calcDelta(delta + deltaStep, pc)
+//                println(s"failed $delta for $pc")
+        if (minSuccess - delta > deltaStep) {
+          calcDelta((minSuccess + delta) / 2, minSuccess, delta, pc)
+        } else {
+          minSuccess
+        }
       }
     }
-    (calcDelta(0, 0.5), calcDelta(0, 0.9))
+    val delta50 = calcDelta(0, 128000, -deltaStep, 0.5)
+    val delta90 = calcDelta(32000, 128000, 0, 0.9)
+    (delta50, delta90)
   }
 
   /**
