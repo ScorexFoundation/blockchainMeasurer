@@ -12,4 +12,6 @@ class FileLogger(filePath: String) {
   def appendString(string: String): Unit = {
     Files.write(path, (string + "\n").getBytes(), StandardOpenOption.APPEND);
   }
+
+  def clear(): Unit = ???
 }
