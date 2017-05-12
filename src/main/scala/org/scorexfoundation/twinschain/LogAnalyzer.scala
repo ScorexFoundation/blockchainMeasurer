@@ -34,7 +34,7 @@ object LogAnalyzer extends App with Calculator with Settings {
         println(s"processing chain at time $time")
         val tails: Seq[Seq[String]] = statsLines.map(a => getTail(a, time)).map(_._2.toSeq)
         val bf = calcBlockDiff(tails)
-        val consensusDelay = calcConsensusDelay(statsLines, time)
+        val consensusDelay = calcConsensusDelay(statsLines, tails, time)
         logger.appendString(s"${time.toString},${bf._1},${bf._2},${consensusDelay._1},${consensusDelay._2}")
       } match {
         case Success(_) =>

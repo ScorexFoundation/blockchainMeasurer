@@ -20,16 +20,12 @@ trait Calculator {
     *
     * @return 50% and 90% percentiles
     */
-  def calcConsensusDelay(statsLines: Seq[Seq[(Long, Array[String])]], nodeTime: Long): (Long, Long) = {
-    val st = statsLines.map(a => getTail(a, nodeTime))
-    val tails: Seq[Seq[String]] = st.map(_._2.toSeq)
+  def calcConsensusDelay(statsLines: Seq[Seq[(Long, Array[String])]], tails: Seq[Seq[String]], nodeTime: Long): (Long, Long) = {
     val tailsWithTimes: Seq[Seq[(Long, String)]] = tails.indices.map { i =>
-      val r = tails(i).map { b =>
+      tails(i).map { b =>
         val firstAppears = statsLines(i).find(_._2.contains(b)).get
         (firstAppears._1, b)
       }
-      assert(r.last._1 <= st(i)._1, s"${r.last._1} <= ${st(i)._1}")
-      r
     }
     val deltaStep = 1000
 
