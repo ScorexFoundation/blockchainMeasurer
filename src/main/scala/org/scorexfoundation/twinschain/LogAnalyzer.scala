@@ -10,8 +10,9 @@ import scala.util.{Failure, Success, Try}
 object LogAnalyzer extends App with Calculator with Settings {
 
 
-  val RootPath = "data/newLogs/06"
-  val initialTime = 1494504700000L
+  val R = "02"
+  val RootPath = s"data/newLogs/$R"
+  val ResultPath = s"data/stats/$R.stats"
 
   logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
   calculateStats()
@@ -21,12 +22,16 @@ object LogAnalyzer extends App with Calculator with Settings {
       val lines: Iterator[String] = Source.fromFile(fn).getLines()
       lines.map(_.split(":")).map(l => (BigInt(l.head).toLong, l.last.split(",")))
     }
-    val logger = new FileLogger("data/R06_2.stats")
+    val logger = new FileLogger(ResultPath)
+    val initialTime = statsLines.head.toSeq(100)._1
 
     def timeLoop(time: Long): Unit = {
       Try {
+        println(s"processing chain at time $time")
         val tails: Seq[Seq[String]] = statsLines.map(_.find(_._1 >= time).get).map(_._2.toSeq)
-        logger.appendString(time.toString + "," + analyzeTails(tails))
+        val bf = calcBlockDiff(tails)
+//        val consensusDelay = ???
+        logger.appendString(s"${time.toString},${bf._1},${bf._2}")
       } match {
         case Success(_) =>
           timeLoop(time + 10000)
@@ -34,6 +39,7 @@ object LogAnalyzer extends App with Calculator with Settings {
           e.printStackTrace()
       }
     }
+
     timeLoop(initialTime)
   }
 

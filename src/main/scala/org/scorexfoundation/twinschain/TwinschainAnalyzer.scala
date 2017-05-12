@@ -17,7 +17,7 @@ object TwinschainAnalyzer extends App with Settings with Calculator {
       }
     }).onComplete {
       case Success(tails) =>
-        println(analyzeTails(tails))
+        println(calcBlockDiff(tails))
       case Failure(e) =>
         e.printStackTrace()
     }
