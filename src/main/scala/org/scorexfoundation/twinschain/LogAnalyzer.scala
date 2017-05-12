@@ -1,5 +1,7 @@
 package org.scorexfoundation.twinschain
 
+import java.io.File
+
 import scala.io.Source
 import scala.sys.process._
 import scala.util.{Failure, Success, Try}
@@ -11,12 +13,13 @@ object LogAnalyzer extends App with Calculator with Settings {
 
 
   val InitialBlock = 500
-  val R = "02"
+  val R = "04"
   val RootPath = s"data/newLogs/$R"
+  new File(RootPath).mkdirs()
   val ResultPath = s"data/stats/$R.stats"
 
-//  logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
-  calculateStats()
+  logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
+//  calculateStats()
 
   def calculateStats(): Unit = {
     val statsLines: Seq[Seq[(Long, Array[String])]] = Nodes.map(n => s"$RootPath/$n.stats").map { fn =>
@@ -24,7 +27,7 @@ object LogAnalyzer extends App with Calculator with Settings {
       lines.map(_.split(":")).map(l => (BigInt(l.head).toLong, l.last.split(",")))
     }
     val logger = new FileLogger(ResultPath)
-    val initialTime = statsLines.head.toSeq(InitialBlock)._1
+    val initialTime = statsLines.head(InitialBlock)._1
 
 //    logger.clear()
     logger.appendString(s"time,bf50%,bf90%,consensusDelay50%,consensusDelay90%")
