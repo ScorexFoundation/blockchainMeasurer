@@ -13,13 +13,13 @@ object LogAnalyzer extends App with Calculator with Settings {
 
 
   val InitialBlock = 500
-  val R = "04"
+  val R = args(0)
   val RootPath = s"data/newLogs/$R"
   new File(RootPath).mkdirs()
   val ResultPath = s"data/stats/$R.stats"
 
-  logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
-//  calculateStats()
+//  logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
+  calculateStats()
 
   def calculateStats(): Unit = {
     val statsLines: Seq[Seq[(Long, Array[String])]] = Nodes.map(n => s"$RootPath/$n.stats").map { fn =>
