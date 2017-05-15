@@ -10,8 +10,11 @@ class FileLogger(filePath: String) {
   f.createNewFile()
 
   def appendString(string: String): Unit = {
-    Files.write(path, (string + "\n").getBytes(), StandardOpenOption.APPEND);
+    Files.write(path, (string + "\n").getBytes(), StandardOpenOption.APPEND)
   }
 
-  def clear(): Unit = ???
+  def clear(): Unit = {
+    Files.write(path, "".getBytes(), StandardOpenOption.WRITE)
+  }
+
 }

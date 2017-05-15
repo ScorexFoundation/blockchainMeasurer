@@ -1,6 +1,10 @@
 package org.scorexfoundation.twinschain
 
 trait Calculator {
+  val DeltaStep = 1000
+  val MaxDelta = 128000
+
+
   //find minimal i, that $perSent or less of data is less or equal to i
   def persentile(perSent: Double, data: Seq[Int]): Int = {
     val length = data.length
@@ -27,31 +31,31 @@ trait Calculator {
         (firstAppears._1, b)
       }
     }
-    val deltaStep = 1000
 
     def calcDelta(delta: Long, minSuccess: Long, maxFailure: Long, pc: Double): Long = {
+
       assert(delta > maxFailure && delta < minSuccess && delta >= 0)
       val lastBlockDeltaBack: Seq[String] = tailsWithTimes.map(t => t.filter(_._1 <= (nodeTime - delta)).last._2)
       //per cent of nodes that agrees on block delta milliseconds ago
       val percents: Seq[Double] = lastBlockDeltaBack.map(lb => tails.count(_.contains(lb)).toDouble / tails.length)
       if (percents.count(_ >= pc).toDouble / percents.length >= pc) {
 //                println(s"found $delta for $pc")
-        if (minSuccess - delta > deltaStep && delta > 0) {
+        if (minSuccess - delta > DeltaStep && delta > 0) {
           calcDelta((maxFailure + delta) / 2, delta, maxFailure, pc)
         } else {
           delta
         }
       } else {
 //                println(s"failed $delta for $pc")
-        if (minSuccess - delta > deltaStep) {
+        if (minSuccess - delta > DeltaStep) {
           calcDelta((minSuccess + delta) / 2, minSuccess, delta, pc)
         } else {
           minSuccess
         }
       }
     }
-    val delta50 = calcDelta(0, 128000, -deltaStep, 0.5)
-    val delta90 = calcDelta(32000, 128000, 0, 0.9)
+    val delta50 = calcDelta(0, MaxDelta, -DeltaStep, 0.5)
+    val delta90 = calcDelta(32000, MaxDelta, 0, 0.9)
     (delta50, delta90)
   }
 

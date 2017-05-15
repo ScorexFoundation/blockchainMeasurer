@@ -11,25 +11,35 @@ import scala.util.{Failure, Success, Try}
   */
 object LogAnalyzer extends App with Calculator with Settings {
 
+  println("Start log analyzer")
 
-  val InitialBlock = 500
   val R = args(0)
+  val linesToProcess: Int = Try(args(1).toInt).getOrElse(3000)
   val RootPath = s"data/newLogs/$R"
   new File(RootPath).mkdirs()
   val ResultPath = s"data/stats/$R.stats"
+  val TimeStep = 10000
 
-//  logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
+  //  logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
   calculateStats()
 
   def calculateStats(): Unit = {
-    val statsLines: Seq[Seq[(Long, Array[String])]] = Nodes.map(n => s"$RootPath/$n.stats").map { fn =>
-      val lines: Seq[String] = Source.fromFile(fn).getLines().toSeq
-      lines.map(_.split(":")).map(l => (BigInt(l.head).toLong, l.last.split(",")))
+    val initialTime: Long = {
+      val lines: Seq[String] = Source.fromFile(s"$RootPath/${Nodes.last}.stats").getLines().toSeq
+      val r: Seq[(Long, Array[String])] = lines.map(_.split(":")).map(l => (BigInt(l.head).toLong, l.last.split(",")))
+      r(r.length - linesToProcess)._1
     }
-    val logger = new FileLogger(ResultPath)
-    val initialTime = statsLines.head(InitialBlock)._1
 
-//    logger.clear()
+    val statsLines: Seq[Seq[(Long, Array[String])]] = Nodes.map(n => s"$RootPath/$n.stats").map { fn =>
+      val lines: Seq[(Long, Array[String])] = Source.fromFile(fn).getLines().toSeq.map(_.split(":"))
+        .map(l => (BigInt(l.head).toLong, l.last.split(",")))
+      val index = lines.indices.find(i => lines(i)._1 <= initialTime && lines(i + 1)._1 > initialTime).get
+      lines.drop(index - 1)
+    }
+    statsLines.map(_.head).foreach(h => assert(h._1 <= initialTime))
+    val logger = new FileLogger(ResultPath)
+
+    logger.clear()
     logger.appendString(s"time,bf50%,bf90%,consensusDelay50%,consensusDelay90%")
 
     def timeLoop(time: Long): Unit = {
@@ -42,13 +52,13 @@ object LogAnalyzer extends App with Calculator with Settings {
         logger.appendString(s"${time.toString},${bf._1},${bf._2},${consensusDelay._1},${consensusDelay._2}")
       } match {
         case Success(_) =>
-          timeLoop(time + 10000)
+          timeLoop(time + TimeStep)
         case Failure(e) =>
           e.printStackTrace()
       }
     }
 
-    timeLoop(initialTime)
+    timeLoop(initialTime + MaxDelta)
   }
 
 
