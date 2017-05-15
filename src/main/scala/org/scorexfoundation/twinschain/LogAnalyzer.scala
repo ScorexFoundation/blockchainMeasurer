@@ -18,7 +18,7 @@ object LogAnalyzer extends App with Calculator with Settings {
   val RootPath = s"data/newLogs/$R"
   new File(RootPath).mkdirs()
   val ResultPath = s"data/stats/$R.stats"
-  val TimeStep = 10000
+  val TimeStep = 30000
 
   //  logDownloader("/home/ubuntu/data/data/tails.data", RootPath)
   calculateStats()
